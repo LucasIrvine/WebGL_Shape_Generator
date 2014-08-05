@@ -2,13 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js canvas - interactive - cubes</title>
+		<title>Rotation</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
 			body {
-				font-family: Monospace;
-				background-color: #f0f0f0;
 				margin: 0px;
 				overflow: hidden;
 			}
@@ -21,38 +19,79 @@
 
 		<script>
 
-			var container;
-			var camera, scene, projector, renderer;
-			var particleMaterial;
-
-			var deathStars = [];
+			var container,
+				camera,
+				scene,
+				projector,
+				renderer,
+				particleMaterial,
+				deathStars = [],
+				colorArray = [0xFFAA5C, 0xDA727E, 0xAC6C82, 0x685C79, 0x455C7B];
 
 			init();
 			animate();
 
 			function init() {
-
+				//create div
 				container = document.createElement( 'div' );
+				//append div
 				document.body.appendChild( container );
-
-				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+				//create camera
+				camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
+				//set camer position
 				camera.position.set( 1, 1, 1 );
-
+				//create nre scene
 				scene = new THREE.Scene();
 
-				var sphere = new THREE.SphereGeometry(4,15,15);
 
-				for ( var i = 0; i < 15; i ++ ) {
 
-					var deathStar = new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: Math.random() * 0xcccccc, opacity: 0.3, wireframe : true } ) );
-					deathStar.position.x = 0.2 * 100 - 400;
-					deathStar.position.y = 0.2 * 100 - 400;
-					deathStar.position.z = 0.2 * 100 - 400;
+				/*add to the scene*/
 
-					var scaleRandom = Math.random() * 100 + 1;
+				//create 5 spheres
+				createSphereGroup(5);
+
+
+
+
+				//create projector
+				projector = new THREE.Projector();
+				//create renderer
+				renderer = new THREE.WebGLRenderer();
+				//set background color
+				renderer.setClearColorHex(0x90A0AD);
+				//set renderer size to that of the current windoe dimensions
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				//look at the center of the scene
+				camera.lookAt(scene.position);
+				//append
+				container.appendChild( renderer.domElement );
+				//on windoe resize
+				window.addEventListener( 'resize', onWindowResize, false );
+
+
+			}
+
+			function createSphereGroup(sphereNumber){
+				var sphere = new THREE.SphereGeometry(3,2,80);
+				var colorIndex = 0;
+				for ( var i = 0; i < sphereNumber; i ++ ) {
+					if(colorIndex < colorArray.length -1){
+						colorIndex++
+					}else{
+						colorIndex = 0;
+					}
+
+					var deathStar = new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: colorArray[colorIndex],wireframe : true } ) );
+					deathStar.position.x = -350;
+					deathStar.position.y = -350;
+					deathStar.position.z = -350;
+
+					var scaleRandom = (Math.random() * 100) + 20;
 					deathStar.scale.x = scaleRandom;
 					deathStar.scale.y = scaleRandom;
 					deathStar.scale.z = scaleRandom;
+
+					console.log(scaleRandom);
 
 					deathStar.rotation.x = Math.random() * 2 * Math.PI;
 					deathStar.rotation.y = Math.random() * 2 * Math.PI;
@@ -63,54 +102,30 @@
 					deathStars.push( deathStar );
 
 				}
-
-
-				projector = new THREE.Projector();
-
-				renderer = new THREE.WebGLRenderer();
-				renderer.setClearColorHex(0xe9e9e9);
-				renderer.setSize(window.innerWidth, window.innerHeight);
-
-				container.appendChild( renderer.domElement );
-
-
-
-				window.addEventListener( 'resize', onWindowResize, false );
-
 			}
 
 			function onWindowResize() {
-
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
 			}
-
-
 
 			function animate() {
-
 				requestAnimationFrame( animate );
-
 				render();
-
-
 			}
-
-			var radius = 20;
-			var theta = 0;
 
 			function render() {
 
 				$.each(deathStars, function(i, thisDeathStar){
-					thisDeathStar.rotation.y += Math.random() * 0.02;
+					thisDeathStar.rotation.y += 0.01;
 				});
 
-
-
-				camera.lookAt( scene.position );
+				if(camera.position.x < 450){
+					camera.position.x += 5;
+					camera.position.y += 5;
+					camera.position.z += 5;
+				}
 
 				renderer.render( scene, camera );
 

@@ -55,8 +55,12 @@
 
 				//create projector
 				projector = new THREE.Projector();
-				//create renderer
-				renderer = new THREE.WebGLRenderer();
+				if (window.WebGLRenderingContext){
+					renderer = new THREE.WebGLRenderer();
+				}else{
+					renderer = new THREE.CanvasRenderer();
+				}
+
 				//set background color
 				renderer.setClearColorHex(0x90A0AD);
 				//set renderer size to that of the current windoe dimensions

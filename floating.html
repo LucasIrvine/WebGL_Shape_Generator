@@ -25,7 +25,8 @@
 				renderer,
 				particleMaterial,
 				deathStars = [],
-				colorArray = [0xFFAA5C, 0xDA727E, 0xAC6C82, 0x685C79, 0x455C7B];
+				colorArray = [0xFFAA5C, 0xDA727E, 0xAC6C82, 0x685C79, 0x455C7B],
+				tessOptions = [2, 15, 85, 1, 4, 2, 32, 55, 15];
 
 			init();
 			animate();
@@ -38,7 +39,7 @@
 				//create camera
 				camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
 				//set camer position
-				camera.position.set( 1, 1, 1 );
+				camera.position.set( 900, 900, 900 );
 				//create nre scene
 				scene = new THREE.Scene();
 
@@ -57,10 +58,10 @@
 				/*add to the scene*/
 
 				//create 5 spheres
-				createSphereGroup(5);
+				createSphereGroup(4);
 
-
-
+				//fog
+				scene.fog = new THREE.Fog(0x90A0AD, 1400,2100);
 
 				//create projector
 				projector = new THREE.Projector();
@@ -84,8 +85,15 @@
 
 			}
 
-			function createSphereGroup(sphereNumber){
-				var sphere = new THREE.SphereGeometry(3,2,45);
+
+
+			function createSphereGroup(sphereNumber, random){
+				var tess = 55;
+
+				if(random){
+					tess = tessOptions[Math.floor(Math.random()*tessOptions.length)];
+				}
+				var sphere = new THREE.SphereGeometry(3,2,tess);
 				var colorIndex = 0;
 				for ( var i = 0; i < sphereNumber; i ++ ) {
 					if(colorIndex < colorArray.length -1){
@@ -96,7 +104,7 @@
 
 
 					var materials = [
-						new THREE.MeshLambertMaterial( { opacity: 0.6, color: colorArray[colorIndex],transparent : true } ),
+						new THREE.MeshLambertMaterial( { opacity: 0.3, color: colorArray[colorIndex],transparent : true } ),
 						new THREE.MeshBasicMaterial( { color: colorArray[colorIndex],wireframe : true } )
 					];
 
@@ -137,18 +145,34 @@
 				render();
 			}
 
+			var zoomed = false
+
+
 			function render() {
 
 				$.each(deathStars, function(i, thisDeathStar){
-					thisDeathStar.rotation.y += 0.01;
+					thisDeathStar.rotation.y += 0.015;
 				});
 
-				if(camera.position.x < 650){
-					camera.position.x += 5;
-					camera.position.y += 5;
-					camera.position.z += 5;
+				if(camera.position.x > -350 && zoomed === false){
+					camera.position.x -= 2;
+					camera.position.y -= 2;
+					camera.position.z -= 2;
+				} else{
+					zoomed = true;
+					camera.position.x += 2;
+					camera.position.y += 2;
+					camera.position.z += 2;
 				}
 
+				if(camera.position.x > 1000){
+					$.each(deathStars, function(i, thisDeathStar){
+						scene.remove(thisDeathStar);
+					});
+
+					createSphereGroup(5, true);
+					zoomed = false;
+				}
 				renderer.render( scene, camera );
 
 			}

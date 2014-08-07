@@ -13,7 +13,6 @@
 		</style>
 	</head>
 	<body>
-
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r67/three.min.js"></script>
 		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 
@@ -42,6 +41,16 @@
 				camera.position.set( 1, 1, 1 );
 				//create nre scene
 				scene = new THREE.Scene();
+
+		        // add subtle ambient lighting
+		        var ambientLight = new THREE.AmbientLight(0x0c0c0c);
+		        scene.add(ambientLight);
+
+		        // add spotlight for the shadows
+		        var spotLight = new THREE.SpotLight( 0xffffff );
+		        spotLight.position.set( 940, 10060, 510 );
+		        spotLight.castShadow = true;
+		        scene.add( spotLight );
 
 
 
@@ -76,7 +85,7 @@
 			}
 
 			function createSphereGroup(sphereNumber){
-				var sphere = new THREE.SphereGeometry(3,2,80);
+				var sphere = new THREE.SphereGeometry(3,2,45);
 				var colorIndex = 0;
 				for ( var i = 0; i < sphereNumber; i ++ ) {
 					if(colorIndex < colorArray.length -1){
@@ -85,7 +94,15 @@
 						colorIndex = 0;
 					}
 
-					var deathStar = new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: colorArray[colorIndex],wireframe : true } ) );
+
+					var materials = [
+						new THREE.MeshLambertMaterial( { opacity: 0.6, color: colorArray[colorIndex],transparent : true } ),
+						new THREE.MeshBasicMaterial( { color: colorArray[colorIndex],wireframe : true } )
+					];
+
+					var deathStar = THREE.SceneUtils.createMultiMaterialObject(sphere, materials);
+					deathStar.castShadow = true;
+					//var deathStar = new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: colorArray[colorIndex],wireframe : true } ) );
 					deathStar.position.x = -350;
 					deathStar.position.y = -350;
 					deathStar.position.z = -350;
@@ -95,7 +112,6 @@
 					deathStar.scale.y = scaleRandom;
 					deathStar.scale.z = scaleRandom;
 
-					console.log(scaleRandom);
 
 					deathStar.rotation.x = Math.random() * 2 * Math.PI;
 					deathStar.rotation.y = Math.random() * 2 * Math.PI;
@@ -107,6 +123,8 @@
 
 				}
 			}
+
+
 
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -125,7 +143,7 @@
 					thisDeathStar.rotation.y += 0.01;
 				});
 
-				if(camera.position.x < 450){
+				if(camera.position.x < 650){
 					camera.position.x += 5;
 					camera.position.y += 5;
 					camera.position.z += 5;

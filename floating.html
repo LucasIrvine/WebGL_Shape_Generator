@@ -25,8 +25,8 @@
 				renderer,
 				particleMaterial,
 				deathStars = [],
-				colorArray = [0xFFAA5C, 0xDA727E, 0xAC6C82, 0x685C79, 0x455C7B],
-				tessOptions = [2, 15, 85, 1, 4, 2, 32, 55, 15];
+				colorArray = [0xFFAA5C, 0xDA727E, 0xAC6C82, 0x685C79, 0x455C7B, 0xFFFFFF],
+				tessOptions = [2, 15, 85, 1, 4, 12, 32, 55, 19];
 
 			init();
 			animate();
@@ -58,7 +58,7 @@
 				/*add to the scene*/
 
 				//create 5 spheres
-				createSphereGroup(4);
+				createSphereGroup(5);
 
 				//fog
 				scene.fog = new THREE.Fog(0x90A0AD, 1400,2100);
@@ -90,10 +90,10 @@
 			function createSphereGroup(sphereNumber, random){
 				var tess = 55;
 
-				if(random){
+				//if(random){
 					tess = tessOptions[Math.floor(Math.random()*tessOptions.length)];
-				}
-				var sphere = new THREE.SphereGeometry(3,2,tess);
+				//}
+				var sphere = new THREE.SphereGeometry(3,Math.floor(Math.random() * 7),Math.floor(Math.random() * 17));
 				var colorIndex = 0;
 				for ( var i = 0; i < sphereNumber; i ++ ) {
 					if(colorIndex < colorArray.length -1){
@@ -145,7 +145,12 @@
 				render();
 			}
 
-			var zoomed = false
+			var zoomed = false,
+				firstZoom = 500,
+				maxZoom = -150,
+				firstPause = 0,
+				pause = 0,
+				pauseCount = 500;
 
 
 			function render() {
@@ -154,23 +159,30 @@
 					thisDeathStar.rotation.y += 0.015;
 				});
 
-				if(camera.position.x > -350 && zoomed === false){
-					camera.position.x -= 2;
-					camera.position.y -= 2;
-					camera.position.z -= 2;
-				} else{
+				if(camera.position.x > maxZoom && zoomed === false){
+					camera.position.x -= 1;
+					camera.position.y -= 1;
+					camera.position.z -= 1;
+				}else if(camera.position.x == firstZoom && firstPause < pauseCount){
+					console.log(firstPause);
+					firstPause++;
+				} else if(camera.position.x == maxZoom && pause < pauseCount){
+					pause++;
+				}else{
+					firstPause = 0;
+					pause = 0;
 					zoomed = true;
-					camera.position.x += 2;
-					camera.position.y += 2;
-					camera.position.z += 2;
+					camera.position.x += 1;
+					camera.position.y += 1;
+					camera.position.z += 1;
 				}
-
 				if(camera.position.x > 1000){
 					$.each(deathStars, function(i, thisDeathStar){
 						scene.remove(thisDeathStar);
 					});
-
-					createSphereGroup(5, true);
+					var groupSize = Math.floor(Math.random() * 20);
+					console.log(groupSize);
+					createSphereGroup(groupSize, true);
 					zoomed = false;
 				}
 				renderer.render( scene, camera );
